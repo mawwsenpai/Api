@@ -7,25 +7,21 @@ export default async function handler(request, response) {
   const DROPBOX_APP_SECRET = process.env.DROPBOX_APP_SECRET;
   const REDIRECT_URI = "https://revisinovelpremium.blogspot.com";
   
-  // Mendapatkan origin dari permintaan
   const origin = request.headers.get('origin');
   
   // Perbaikan CORS: Izinkan koneksi dari localhost atau dari URL blogspot
   if (origin && (origin.startsWith('http://localhost') || origin === REDIRECT_URI)) {
     response.setHeader('Access-Control-Allow-Origin', origin);
   } else {
-    // Untuk keamanan, izinkan hanya origin yang kita tahu
     response.setHeader('Access-Control-Allow-Origin', REDIRECT_URI);
   }
 
   response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
 
-  // Menangani permintaan OPTIONS dari browser
   if (request.method === 'OPTIONS') {
     return response.status(200).end();
   }
 
-  // Menangani permintaan dari aplikasi Android untuk URL otentikasi
   if (request.method === 'GET' && request.query.type === 'auth') {
     if (!DROPBOX_APP_KEY) {
       return response.status(500).json({ error: "Dropbox App Key is not configured." });
@@ -34,7 +30,6 @@ export default async function handler(request, response) {
     return response.status(200).json({ authUrl });
   }
 
-  // Menangani permintaan dari Dropbox untuk menukar kode otentikasi
   if (request.method === 'GET' && request.query.code) {
     const code = request.query.code;
     
@@ -69,6 +64,5 @@ export default async function handler(request, response) {
     }
   }
 
-  // Respon jika URL tidak ditemukan
   return response.status(404).json({ message: 'Not Found' });
 }
