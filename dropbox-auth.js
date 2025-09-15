@@ -1,14 +1,23 @@
 // api/dropbox-auth.js
 // Server backend untuk menukar token Dropbox
-import fetch from 'node-fetch'; // Tambahkan ini di bagian atas
+import fetch from 'node-fetch';
 
 export default async function handler(request, response) {
   const DROPBOX_APP_KEY = process.env.DROPBOX_APP_KEY;
   const DROPBOX_APP_SECRET = process.env.DROPBOX_APP_SECRET;
   const REDIRECT_URI = "https://revisinovelpremium.blogspot.com";
+  
+  // Mendapatkan origin dari permintaan
+  const origin = request.headers.get('origin');
+  
+  // Perbaikan CORS: Izinkan koneksi dari localhost atau dari URL blogspot
+  if (origin && (origin.startsWith('http://localhost') || origin === REDIRECT_URI)) {
+    response.setHeader('Access-Control-Allow-Origin', origin);
+  } else {
+    // Untuk keamanan, izinkan hanya origin yang kita tahu
+    response.setHeader('Access-Control-Allow-Origin', REDIRECT_URI);
+  }
 
-  // Perbaikan CORS: Izinkan semua permintaan dari browser
-  response.setHeader('Access-Control-Allow-Origin', '*');
   response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
 
   // Menangani permintaan OPTIONS dari browser
